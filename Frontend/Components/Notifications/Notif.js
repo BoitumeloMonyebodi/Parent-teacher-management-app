@@ -1,57 +1,71 @@
+// import Navigation from "../Navigation/Navigation";
+import Notification from "./Notification";
+import { useNotifications } from "../../Hooks/useNotifications";
+import { useMemo } from "react";
 import { useSelector } from "react-redux";
 import axios from "axios";
-import { Link } from "react-router-dom";
 
-const Notification = (props) => {
+const Notifications = () => {
 
     const token = useSelector((state)=>state.auth.token);
+    const {notifications, loading, getNotifications} = useNotifications();
 
-    const setNotificationRead = async (type) => {
-        let endpoint = '';
-        if (type === 'Announcement' || type === 'Event' || type === 'Story') {
-            endpoint = 'class-notification-update';
-        } else if (type === 'Message' || type === 'IsCalling' || type === 'MissedCall' || type === 'CallCancelled') {
-            endpoint = 'chat-notification-update';
-        }
+    // Sort notifications by last updated
+    const sortedNotifications = useMemo(()=>{
+        const notifs = [...notifications];
+        notifs.sort((a,b)=>{
+            return Date.parse(b.updated_at) - Date.parse(a.updated_at)
+        })
+        return notifs;
+    }, [notifications]);
+
+    let notifications_div = sortedNotifications.map(notification=>{
+        return <Notification 
+            key={`${notification.type}${notification.id}`} 
+            id={notification.id}
+            type={notification.type}
+            title={notification.title}
+            group={notification?.group}
+            school_class={notification?.school_class}
+            updated_at={new Date(notification.updated_at)}
+            read={notification.read}
+            qty_missed={notification.qty_missed}
+            getNotifications={getNotifications}
+        />
+    })
+
+    const clearAllHandler = async () => {
         const headers = {
             'Content-Type': 'application/json',
             'Authorization': 'Token ' + token
         }
-        const url = `${process.env.REACT_APP_API_URL}/api/v1/school/${endpoint}/${props.id}/`
-        const data = {read: true}
+        const url = `${process.env.REACT_APP_API_URL}/api/v1/school/all-notifications-update/`;
+        const data = {};
         try {
             const res = await axios.put(url, data, {headers: headers});
             console.log(res);
-            props.getNotifications();
+            getNotifications();
         } catch(err) {
             console.log(err);
         }
     }
 
-    let navigate_dst = `/chatGroup/${props.group?.id}`;
-    if (props.title === "Missed call") navigate_dst = `/videoChat/${props.group?.id}`;
-    if (props.school_class) navigate_dst = `/class/${props.school_class?.id}`
-    
-    let group_name = props.group?.name;
-    if (props.group?.direct_message) group_name = `${props.group.recipient?.first_name} ${props.group.recipient?.last_name}`
-
-    if (props.school_class) group_name = props.school_class?.name
+    let clearAllCursor = "cursor-pointer";
+    if (notifications.length === 0) clearAllCursor = "cursor-not-allowed";
 
     return (
-        <div className={`w-full border border-gray-300 bg-gray-50 shadow-md rounded p-2`}>
-            <div className="w-full flex justify-between items-center">
-                <div className="flex items-center">
-                    <h3 className="text-lg font-semibold mr-2">{props.title}</h3>
-                    <h3 className="font-semibold text-gray-500">({props.qty_missed})</h3>
-                </div>
-                <button className="border border-gray-red-300 bg-red-600 text-white text-sm font-semibold py-1 px-2 rounded hover:bg-red-700" onClick={()=>setNotificationRead(props.type)}>Clear</button>
-            </div>
-            <div className="w-full flex justify-between items-center">
-                <Link to={navigate_dst}><p className="text-base text-blue-500 underline font-semibold">{group_name}</p></Link>
-                <p className="text-sm">{`${props.updated_at.toLocaleDateString()} - ${props.updated_at.toLocaleTimeString()}`}</p>
-            </div>
+        <div className="w-full sm:w-[620px] h-[500px] bg-white text-center mt-2 border border-gray-300 rounded shadow-lg overflow-auto z-20">
+            <h2 className="mt-2">Notifications</h2>
+            <button 
+                className={`border border-gray-red-300 bg-red-600 text-white font-semibold py-1 px-2 rounded hover:bg-red-700 my-2 ${clearAllCursor}`} 
+                onClick={clearAllHandler}
+                disabled={notifications.length === 0}
+            >
+                Clear All
+            </button>
+            {loading ? <p>Loading...</p> : notifications_div}
         </div>
     )
 }
 
-export default Notification;
+export default Notifications;
