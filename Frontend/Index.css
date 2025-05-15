@@ -1,0 +1,50 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  h1 {
+    @apply text-4xl tracking-tight font-extrabold text-center;
+  }
+  h2 {
+    @apply text-2xl font-bold text-center;
+  }
+  h3 {
+    @apply text-xl font-bold text-center;
+  }
+  h4 {
+    @apply text-lg font-bold text-center
+  }
+  input {
+    @apply pl-1
+  }
+  textarea {
+    @apply pl-1
+  }
+  .selected {
+    @apply w-20 border-2 border-black rounded-md bg-indigo-500 text-sm text-white font-semibold p-1 m-1
+  }
+  .unselected {
+    @apply w-20 border-2 border-black rounded-md p-1 m-1 bg-white text-sm
+  }
+  .classMenuSelected {
+    @apply text-indigo-700 border-b-2 border-indigo-700 font-bold mx-3 sm:mx-4
+  }
+  .classMenuUnselected {
+    @apply cursor-pointer mx-3 sm:mx-4
+  }
+}
