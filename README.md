@@ -51,12 +51,7 @@ Then, use docker-compose to create the containers.
 
 docker-compose up --build
 Frontend
-Inside the frontend directory, create a .env.local file with the following fields:
-
-REACT_APP_API_URL=http://localhost:8000
-REACT_APP_FRONTEND_URL=http://localhost:3000
-REACT_APP_WS_URL=ws://localhost:8000
-You may need to use http://127.0.0.1 instead of localhost.
+Inside the frontend directory, create a .env.local file 
 
 Then, install the dependencies and run the server.
 
